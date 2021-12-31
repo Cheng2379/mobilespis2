@@ -1,11 +1,16 @@
 // ignore_for_file: avoid_unnecessary_containers, prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, use_key_in_widget_constructors, unused_field, await_only_futures, prefer_is_empty, unnecessary_this, avoid_function_literals_in_foreach_calls
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:card_swiper/card_swiper.dart';
-import 'swiper_data.dart';
+import 'data/swiper_data.dart';
+import 'figure.dart';
 import 'package:http/http.dart' as http;
+import 'announcement.dart';
+import 'login.dart';
 import 'dart:convert';
+import 'horizontal.dart';
 
 void main() => runApp(const MyApp());
 
@@ -15,6 +20,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+
         debugShowCheckedModeBanner: false,
         //主题颜色
         theme: ThemeData(
@@ -45,7 +51,7 @@ class _HomeState extends State<Home> {
 
   List titleList =[];
   //设置尺寸
-  void init() {
+  void initScreenUtil() {
     ScreenUtil.init(
       BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width, //屏幕宽度
@@ -53,35 +59,38 @@ class _HomeState extends State<Home> {
       ),
       designSize: Size(360, 690), //基于360*690dp的屏幕适配
     );
-    print('屏幕尺寸初始化已执行');
   }
 
   //获取公告信息
-  getAnnouncement() async{
+  getAnnouncement() async {
     var response = await http.get(Uri.parse("http://10.0.2.2:5000/api/Announcement"));
     if(response.statusCode == 200){
       var titleText = json.decode(response.body);
       titleList = titleText;
       //按时间降序排序
       titleList.sort((a,b) => b["createTime"]!.compareTo("${a["createTime"]}"));
-      print('排序后：$titleList');
 
-      titleList.forEach((element) {
-        print('');
-        print("id: ${element["id"]}");
-        print("title: ${element["title"]}");
-        print("createTime: ${element["createTime"]}");
+      //修改状态
+      setState(() {
+        //切割数据，留最新的5条数据
+        titleList = titleList.sublist(0,5);
       });
-
+      // // 跳过数据
+      // print('数据： ${titleList.skip(2)}');
     }else{
       print('请求失败：${response.statusCode}');
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    init();//初始化屏幕尺寸
+  void initState() {
+    super.initState();
     getAnnouncement();//获取公告信息
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    initScreenUtil();//初始化屏幕尺寸
 
     return Container(
       color: Color(0xffF2F2F2),
@@ -98,7 +107,7 @@ class _HomeState extends State<Home> {
               width: MediaQuery.of(context).size.width,
               height: ScreenUtil().setHeight(40),
               alignment: Alignment.center,
-              padding: EdgeInsets.fromLTRB(10,0,10,0),
+              padding: EdgeInsets.fromLTRB(15,0,15,0),
               color: Color(0xffD7D7D7),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -106,10 +115,14 @@ class _HomeState extends State<Home> {
                   Text("Skyward Company Management System",
                     style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
                   ),
-
+                  //登录点击事件
                   InkWell(
                     onTap: (){
-                      login();
+                      Navigator.push(context, MaterialPageRoute(
+                          builder: (BuildContext context) {
+                           return Login();
+                          }
+                      ));
                     },
                     child: Text("Login",
                       style: TextStyle(
@@ -191,48 +204,50 @@ class _HomeState extends State<Home> {
               shrinkWrap: false,
               itemCount: titleList.length,
               itemBuilder: (context,index){
-                return Container(
-                  alignment: Alignment.centerLeft,
-                  height: ScreenUtil().setHeight(30),
-                  decoration: BoxDecoration(
-                      color: Color(0xffFDFDFD),
-                      border: Border(
-                        top: BorderSide(
-                          width: 1,
-                          color: Color(0xffE9EBF0)
-                        ),
-                        bottom: BorderSide(
-                          width: 1,
-                          color: Color(0xffE9EBF0)
-                        ),
+                return GestureDetector(
+                  //点击事件
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(
+                        builder: (context) => Announcement(),
+                        settings: RouteSettings(
+                          //携带参数
+                          arguments: titleList[index],
                       )
+                    ),
+                    );
+                  },
+                  //子项样式
+                  child: Container(
+                    alignment: Alignment.centerLeft,
+                    height: ScreenUtil().setHeight(40),
+                    decoration: BoxDecoration(
+                        color: Color(0xffFDFDFD),
+                        border: Border(
+                          top: BorderSide(
+                              width: 1,
+                              color: Color(0xffE9EBF0)
+                          ),
+                          bottom: BorderSide(
+                              width: 1,
+                              color: Color(0xffE9EBF0)
+                          ),
+                        )
                     ),
                     child: Text(titleList[index]["title"],
                       style: TextStyle(
-                        fontSize: ScreenUtil().setSp(12),
-                        color: Colors.black87
+                          fontSize: ScreenUtil().setSp(12),
+                          color: Colors.black87
                       ),
                     ),
-                  );
+                  ),
+                );
                 },
             ),
-          )
-
+          ),
         ],
       ),
     );
   }
-
-
-
-
-  //登录
-  void login(){
-
-  }
-
-
-
 }
 
 
