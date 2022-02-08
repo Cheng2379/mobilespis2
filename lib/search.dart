@@ -157,17 +157,10 @@ class _SearchAssetState extends State<SearchAsset> {
                           assetName = asset[index]['name'];
                           category = asset[index]['category'];
                           number = asset[index]['assetNumber'];
-                          print('');
-                          print("index: $index");
-                          print("assetName: $assetName");
-                          print("category: $category");
-                          print("number: $number");
 
                           assetNameIndex = assetName.indexOf(text);
                           categoryIndex = category.indexOf(text);
                           numberIndex = number.indexOf(text);
-                          print('category坐标：$categoryIndex');
-                          print('number坐标：$numberIndex');
 
                           return Container(
                             height: ScreenUtil().setHeight(100),

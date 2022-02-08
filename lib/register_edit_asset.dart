@@ -28,12 +28,14 @@ class _RegisterEditAssetState extends State<RegisterEditAsset> {
   final FocusNode _priceNode = FocusNode(); //焦点
   var _assetNameText = TextEditingController(); //资产名称
   var _priceText = TextEditingController(); //资产名称
+
+  final ImagePicker _picker = ImagePicker();
   XFile? file;
   XFile? image;
 
   bool first = true;
-  bool repeat = true;//资产属性是否重复
-  bool update = true;//true: 更新资产；false：注册资产
+  bool repeat = true; //资产属性是否重复
+  bool update = true; //true: 更新资产；false：注册资产
 
   Map assetMap = {};
   Map specificationMap = {};
@@ -92,7 +94,7 @@ class _RegisterEditAssetState extends State<RegisterEditAsset> {
       assetMap = json.decode(json.encode(object));
       // print("获取的数据：$assetMap");
       setState(() {
-        assetId = assetMap['id'];//AssetId
+        assetId = assetMap['id']; //AssetId
         category = assetMap['category']; //类别
         name = assetMap['name']; //名字
         department = assetMap['department']; //部门
@@ -117,7 +119,7 @@ class _RegisterEditAssetState extends State<RegisterEditAsset> {
           serviceDate = (assetMap["serviceDate"]).split(" ")[0];
         }
       });
-    }else{
+    } else {
       update = false;
       print("注册资产");
     }
@@ -163,8 +165,7 @@ class _RegisterEditAssetState extends State<RegisterEditAsset> {
   }
 
   getAttributeValue() async {
-    var response = await http.get(Uri.parse(
-        "http://10.0.2.2:5000/api/AssetAttributeValue/$attributeNameId"));
+    var response = await http.get(Uri.parse("http://10.0.2.2:5000/api/AssetAttributeValue/$attributeNameId"));
     if (response.statusCode == 200) {
       setState(() {
         attributeValueHttpList = json.decode(response.body);
@@ -179,7 +180,8 @@ class _RegisterEditAssetState extends State<RegisterEditAsset> {
   }
 
   getNumber() async {
-    var response = await http.get(Uri.parse("http://10.0.2.2:5000/api/Asset/$categoryId"));
+    var response =
+        await http.get(Uri.parse("http://10.0.2.2:5000/api/Asset/$categoryId"));
     if (response.statusCode == 200) {
       numberMap = json.decode(response.body);
       number = numberMap['proposal'];
@@ -188,41 +190,41 @@ class _RegisterEditAssetState extends State<RegisterEditAsset> {
     }
   }
 
-  horizontal(){
-      Map specMap = {};
-      attributeNameList.forEach((element) {
-        attributeValueList.forEach((element1) {
-          specMap.putIfAbsent(element, () => element1);
-        });
+  horizontal() {
+    Map specMap = {};
+    attributeNameList.forEach((element) {
+      attributeValueList.forEach((element1) {
+        specMap.putIfAbsent(element, () => element1);
       });
-      Map portraitMap ={
-        "assetId": assetId,
-        "category": category,
-        "categoryId": categoryId,
-        "name": name,
-        "department": department,
-        "price": price,
-        "manufactureDate": manufactureDate,
-        "serviceDate": serviceDate,
-        "number": number,
-        "assetPhotos":photosList,
-        "attributeName": attributeName,
-        "attributeValue": attributeValue,
-        "photo": image,
-        "specificationMap": specMap,
-        "update": update
-      };
-      if(MediaQuery.of(context).orientation==Orientation.landscape){
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (context){
-            return HorizontalScreen();
-          },
-          settings: RouteSettings(
-            name: json.encode(assetMap),//object
-            arguments: portraitMap,//传入值
-          ),
-        ));
-      }
+    });
+    Map portraitMap = {
+      "assetId": assetId,
+      "category": category,
+      "categoryId": categoryId,
+      "name": name,
+      "department": department,
+      "price": price,
+      "manufactureDate": manufactureDate,
+      "serviceDate": serviceDate,
+      "number": number,
+      "assetPhotos": photosList,
+      "attributeName": attributeName,
+      "attributeValue": attributeValue,
+      "photo": image,
+      "specificationMap": specMap,
+      "update": update
+    };
+    if (MediaQuery.of(context).orientation == Orientation.landscape) {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) {
+          return HorizontalScreen();
+        },
+        settings: RouteSettings(
+          name: json.encode(assetMap), //object
+          arguments: portraitMap, //传入值
+        ),
+      ));
+    }
   }
 
   @override
@@ -235,7 +237,7 @@ class _RegisterEditAssetState extends State<RegisterEditAsset> {
       getNumber(); //Number
       first = false;
     }
-    horizontal();//横屏
+    horizontal(); //横屏
 
     return Scaffold(
         resizeToAvoidBottomInset: false,
@@ -247,9 +249,8 @@ class _RegisterEditAssetState extends State<RegisterEditAsset> {
           //返回
           leading: IconButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(
-                    builder: (context) => AssetManagement()
-                ));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => AssetManagement()));
               },
               icon: Container(
                 width: ScreenUtil().setWidth(15),
@@ -257,7 +258,8 @@ class _RegisterEditAssetState extends State<RegisterEditAsset> {
                 child: Image.asset("images/icon-left.png", fit: BoxFit.fill),
               )),
           titleSpacing: ScreenUtil().setSp(-5),
-          title: Text("Register / Edit Asset",
+          title: Text(
+            "Register / Edit Asset",
             style: TextStyle(
                 color: Colors.black, fontSize: ScreenUtil().setSp(15)),
           ),
@@ -265,10 +267,10 @@ class _RegisterEditAssetState extends State<RegisterEditAsset> {
           actions: [
             IconButton(
                 onPressed: () {
-                  if(update){
+                  if (update) {
                     //编辑
                     _submit();
-                  }else{
+                  } else {
                     //注册
                     _register();
                   }
@@ -278,1035 +280,1067 @@ class _RegisterEditAssetState extends State<RegisterEditAsset> {
                   height: ScreenUtil().setHeight(30),
                   child:
                       Image.asset("images/icon-submit.png", fit: BoxFit.fill),
-                )
-            )
+                ))
           ],
         ),
 
         body: GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          //清除焦点
-          onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              color: Color(0xffD7D7D7),
-              child: Column(
-                children: [
-                  //Basic Information
-                  Expanded(
-                      flex: 1,
-                      child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        color: Color(0xffF2F2F2),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            //Basic Information
-                            Container(
-                              height: ScreenUtil().setHeight(25),
-                              padding: EdgeInsets.only(
-                                  left: ScreenUtil().setWidth(10),
-                                  top: ScreenUtil().setHeight(10)),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    width: ScreenUtil().setWidth(6),
-                                    height: ScreenUtil().setHeight(18),
-                                    margin: EdgeInsets.only(
-                                        right: ScreenUtil().setWidth(5)),
-                                    color: Color(0xffD7D7D7),
-                                  ),
-                                  Text("Basic Information",
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: ScreenUtil().setSp(14),
-                                          fontWeight: FontWeight.w500))
-                                ],
+            behavior: HitTestBehavior.translucent,
+            //清除焦点
+            onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                color: Color(0xffD7D7D7),
+                child: Column(
+                  children: [
+                    //Basic Information
+                    Expanded(
+                        flex: 1,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          color: Color(0xffF2F2F2),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              //Basic Information
+                              Container(
+                                height: ScreenUtil().setHeight(25),
+                                padding: EdgeInsets.only(
+                                    left: ScreenUtil().setWidth(10),
+                                    top: ScreenUtil().setHeight(10)),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: ScreenUtil().setWidth(6),
+                                      height: ScreenUtil().setHeight(18),
+                                      margin: EdgeInsets.only(
+                                          right: ScreenUtil().setWidth(5)),
+                                      color: Color(0xffD7D7D7),
+                                    ),
+                                    Text("Basic Information",
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: ScreenUtil().setSp(14),
+                                            fontWeight: FontWeight.w500))
+                                  ],
+                                ),
                               ),
-                            ),
 
-                            //Select Asset Category
-                            Container(
-                              width: MediaQuery.of(context).size.width,
-                              height: ScreenUtil().setHeight(30),
-                              padding: EdgeInsets.only(
-                                left: ScreenUtil().setWidth(10),
+                              //Select Asset Category
+                              Container(
+                                width: MediaQuery.of(context).size.width,
+                                height: ScreenUtil().setHeight(30),
+                                padding: EdgeInsets.only(
+                                  left: ScreenUtil().setWidth(10),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.only(top: 15),
+                                      child: Text(
+                                        category,
+                                        style: TextStyle(
+                                            fontSize: ScreenUtil().setSp(12),
+                                            fontWeight: FontWeight.w400,
+                                            color: Color(0xff000000)),
+                                      ),
+                                    ),
+                                    PopupMenuButton(
+                                      icon: Icon(Icons.arrow_drop_down,
+                                          size: ScreenUtil().setSp(25),
+                                          color: Color(0xff7F7F7F)),
+                                      itemBuilder: (BuildContext context) {
+                                        return List.generate(
+                                          categoryAllList.length,
+                                          (index) => PopupMenuItem(
+                                            child: Text(
+                                              categoryAllList[index]["name"],
+                                              style: TextStyle(
+                                                  fontSize:
+                                                      ScreenUtil().setSp(12)),
+                                            ),
+                                            value: categoryAllList[index],
+                                          ),
+                                        );
+                                      },
+                                      onSelected: (value) {
+                                        setState(() {
+                                          Map categoryMap = value as Map;
+                                          category = categoryMap['name'];
+                                          categoryId = categoryMap['id'];
+                                          print('Category：$category');
+                                          // print('CategoryId：$categoryId');
+                                          getNumber();
+                                          getAttributeName();
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.only(top: 15),
-                                    child: Text(
-                                      category,
-                                      style: TextStyle(
+
+                              //分割线
+                              Container(
+                                height: 1,
+                                margin: EdgeInsets.only(
+                                  top: ScreenUtil().setHeight(5),
+                                  left: ScreenUtil().setWidth(10),
+                                  right: ScreenUtil().setWidth(10),
+                                ),
+                                color: Color(0xffD0D0D0),
+                              ),
+
+                              //Asset Name
+                              Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  height: ScreenUtil().setHeight(32),
+                                  padding: EdgeInsets.only(
+                                    left: ScreenUtil().setWidth(10),
+                                    right: ScreenUtil().setWidth(10),
+                                  ),
+                                  child: TextField(
+                                    autofocus: false,
+                                    focusNode: _assetNameNode,
+                                    controller: _assetNameText,
+                                    maxLines: 3,
+                                    style: TextStyle(
+                                      fontSize: ScreenUtil().setSp(12),
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText:
+                                          assetMap["name"] ?? "Asset Name",
+                                      hintStyle: TextStyle(
                                           fontSize: ScreenUtil().setSp(12),
-                                          fontWeight: FontWeight.w400,
                                           color: Color(0xff000000)),
                                     ),
-                                  ),
-                                  PopupMenuButton(
-                                    icon: Icon(Icons.arrow_drop_down,
-                                        size: ScreenUtil().setSp(25),
-                                        color: Color(0xff7F7F7F)),
-                                    itemBuilder: (BuildContext context) {
-                                      return List.generate(categoryAllList.length,
-                                            (index) => PopupMenuItem(
-                                          child: Text(
-                                            categoryAllList[index]["name"],
-                                            style: TextStyle(
-                                                fontSize: ScreenUtil().setSp(12)),
-                                          ),
-                                          value: categoryAllList[index],
-                                        ),
-                                      );
-                                    },
-                                    onSelected: (value) {
-                                      setState(() {
-                                        Map categoryMap = value as Map;
-                                        category = categoryMap['name'];
-                                        categoryId = categoryMap['id'];
-                                        print('Category：$category');
-                                        // print('CategoryId：$categoryId');
-                                        getNumber();
-                                        getAttributeName();
-                                      });
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
+                                  )),
 
-                            //分割线
-                            Container(
-                              height: 1,
-                              margin: EdgeInsets.only(
-                                top: ScreenUtil().setHeight(5),
-                                left: ScreenUtil().setWidth(10),
-                                right: ScreenUtil().setWidth(10),
+                              //分割线
+                              Container(
+                                height: 1,
+                                color: Color(0xffD0D0D0),
+                                margin: EdgeInsets.only(
+                                  left: ScreenUtil().setWidth(10),
+                                  right: ScreenUtil().setWidth(10),
+                                ),
                               ),
-                              color: Color(0xffD0D0D0),
-                            ),
 
-                            //Asset Name
-                            Container(
+                              //Department / Price
+                              Container(
                                 width: MediaQuery.of(context).size.width,
-                                height: ScreenUtil().setHeight(32),
+                                height: ScreenUtil().setHeight(30),
                                 padding: EdgeInsets.only(
                                   left: ScreenUtil().setWidth(10),
                                   right: ScreenUtil().setWidth(10),
                                 ),
-                                child: TextField(
-                                  autofocus: false,
-                                  focusNode: _assetNameNode,
-                                  controller: _assetNameText,
-                                  maxLines: 3,
-                                  style: TextStyle(
-                                    fontSize: ScreenUtil().setSp(12),
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: assetMap["name"] ?? "Asset Name",
-                                    hintStyle: TextStyle(
-                                        fontSize: ScreenUtil().setSp(12),
-                                        color: Color(0xff000000)),
-                                  ),
-                                )
-                            ),
+                                child: Row(
+                                  children: [
+                                    //Department
+                                    Expanded(
+                                        flex: 1,
+                                        child: Container(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          margin: EdgeInsets.only(
+                                              right: ScreenUtil().setWidth(5)),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Container(
+                                                padding: EdgeInsets.only(
+                                                    top: ScreenUtil()
+                                                        .setHeight(5)),
+                                                child: Text(
+                                                  department,
+                                                  style: TextStyle(
+                                                      fontSize: ScreenUtil()
+                                                          .setSp(10),
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color: Color(0xff000000)),
+                                                ),
+                                              ),
+                                              PopupMenuButton(
+                                                icon: Icon(
+                                                    Icons.arrow_drop_down,
+                                                    color: Color(0xff7F7F7F),
+                                                    size:
+                                                        ScreenUtil().setSp(25)),
+                                                itemBuilder:
+                                                    (BuildContext context) {
+                                                  return List.generate(
+                                                    departmentList.length,
+                                                    (index) => PopupMenuItem(
+                                                      child: Text(
+                                                        departmentList[index]
+                                                            ["name"],
+                                                        style: TextStyle(
+                                                            fontSize:
+                                                                ScreenUtil()
+                                                                    .setSp(12),
+                                                            color: Color(
+                                                                0xff000000)),
+                                                      ),
+                                                      value:
+                                                          departmentList[index],
+                                                    ),
+                                                  );
+                                                },
+                                                onSelected: (value) {
+                                                  setState(() {
+                                                    Map map = value as Map;
+                                                    department = map['name'];
+                                                    departmentId = map['id'];
 
-                            //分割线
-                            Container(
-                              height: 1,
-                              color: Color(0xffD0D0D0),
-                              margin: EdgeInsets.only(
-                                left: ScreenUtil().setWidth(10),
-                                right: ScreenUtil().setWidth(10),
-                              ),
-                            ),
+                                                    print(
+                                                        "Department: $department");
+                                                    print(
+                                                        "DepartmentId: $departmentId");
+                                                  });
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        )),
 
-                            //Department / Price
-                            Container(
-                              width: MediaQuery.of(context).size.width,
-                              height: ScreenUtil().setHeight(30),
-                              padding: EdgeInsets.only(
-                                left: ScreenUtil().setWidth(10),
-                                right: ScreenUtil().setWidth(10),
+                                    //Price
+                                    Expanded(
+                                        flex: 1,
+                                        child: Container(
+                                            margin: EdgeInsets.only(
+                                              left: ScreenUtil().setWidth(20),
+                                            ),
+                                            child: TextField(
+                                              autofocus: false,
+                                              focusNode: _priceNode,
+                                              controller: _priceText,
+                                              maxLines: 3,
+                                              style: TextStyle(
+                                                fontSize:
+                                                    ScreenUtil().setSp(11),
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                              decoration: InputDecoration(
+                                                border: InputBorder.none,
+                                                hintText: price,
+                                                hintStyle: TextStyle(
+                                                    fontSize:
+                                                        ScreenUtil().setSp(11),
+                                                    color: Color(0xff000000)),
+                                              ),
+                                            )))
+                                  ],
+                                ),
                               ),
-                              child: Row(
-                                children: [
-                                  //Department
-                                  Expanded(
+
+                              //分割线
+                              Container(
+                                margin: EdgeInsets.only(
+                                  left: ScreenUtil().setWidth(10),
+                                  right: ScreenUtil().setWidth(10),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
                                       flex: 1,
                                       child: Container(
-                                        width: MediaQuery.of(context).size.width,
+                                        height: 1,
                                         margin: EdgeInsets.only(
-                                            right: ScreenUtil().setWidth(5)),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Container(
-                                              padding: EdgeInsets.only(
-                                                  top: ScreenUtil().setHeight(5)),
-                                              child: Text(
-                                                department,
+                                            top: ScreenUtil().setHeight(5),
+                                            right: ScreenUtil().setWidth(20)),
+                                        color: Color(0xffD0D0D0),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(
+                                        height: 1,
+                                        margin: EdgeInsets.only(
+                                            top: ScreenUtil().setHeight(5),
+                                            left: ScreenUtil().setWidth(20)),
+                                        color: Color(0xffD0D0D0),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              //Manufacture Date / Service Date
+                              Container(
+                                width: MediaQuery.of(context).size.width,
+                                height: ScreenUtil().setHeight(30),
+                                margin: EdgeInsets.only(
+                                  left: ScreenUtil().setWidth(10),
+                                  right: ScreenUtil().setWidth(10),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                        flex: 1,
+                                        child: Container(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          margin: EdgeInsets.only(
+                                              right: ScreenUtil().setWidth(10)),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                manufactureDate,
                                                 style: TextStyle(
                                                     fontSize:
-                                                    ScreenUtil().setSp(10),
+                                                        ScreenUtil().setSp(11),
                                                     fontWeight: FontWeight.w400,
                                                     color: Color(0xff000000)),
                                               ),
-                                            ),
-                                            PopupMenuButton(
-                                              icon: Icon(Icons.arrow_drop_down,
-                                                  color: Color(0xff7F7F7F),
-                                                  size: ScreenUtil().setSp(25)),
-                                              itemBuilder:
-                                                  (BuildContext context) {
-                                                return List.generate(
-                                                  departmentList.length, (index) => PopupMenuItem(
-                                                  child: Text(
-                                                    departmentList[index]["name"],
-                                                    style: TextStyle(
-                                                        fontSize: ScreenUtil()
-                                                            .setSp(12),
-                                                        color:
-                                                        Color(0xff000000)),
-                                                  ),
-                                                  value: departmentList[index],
-                                                ),
-                                                );
-                                              },
-                                              onSelected: (value) {
-                                                setState(() {
-                                                  Map map = value as Map;
-                                                  department = map['name'];
-                                                  departmentId = map['id'];
-
-                                                  print("Department: $department");
-                                                  print("DepartmentId: $departmentId");
-                                                });
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      )),
-
-                                  //Price
-                                  Expanded(
-                                      flex: 1,
-                                      child: Container(
-                                          margin: EdgeInsets.only(
-                                            left: ScreenUtil().setWidth(20),
+                                              Container(
+                                                  width: ScreenUtil().setWidth(20),
+                                                  height: ScreenUtil().setHeight(20),
+                                                  margin: EdgeInsets.only(right: ScreenUtil().setWidth(10)),
+                                                  child: InkWell(
+                                                    onTap: () async {
+                                                      var result = await showDatePicker(
+                                                        context: context,
+                                                        initialDate: DateTime.now(),
+                                                        firstDate: DateTime(2000),
+                                                        lastDate: DateTime(2050),
+                                                      ) as DateTime;
+                                                      setState(() {
+                                                        manufactureDate = formatDate(result, [yyyy, '-', m, '-', d]);
+                                                        print('Manufacture Date: $manufactureDate');
+                                                      });
+                                                    },
+                                                    child: Image.asset("images/icon-calendar.png", fit: BoxFit.fill),
+                                                  ))
+                                            ],
                                           ),
-                                          child: TextField(
-                                            autofocus: false,
-                                            focusNode: _priceNode,
-                                            controller: _priceText,
-                                            maxLines: 3,
-                                            style: TextStyle(
-                                              fontSize: ScreenUtil().setSp(11),
-                                              fontWeight: FontWeight.w400,
-                                            ),
-                                            decoration: InputDecoration(
-                                              border: InputBorder.none,
-                                              hintText: price,
-                                              hintStyle: TextStyle(
-                                                  fontSize: ScreenUtil().setSp(11),
-                                                  color: Color(0xff000000)),
-                                            ),
-                                          )
-                                      )
-                                  )
-                                ],
-                              ),
-                            ),
-
-                            //分割线
-                            Container(
-                              margin: EdgeInsets.only(
-                                left: ScreenUtil().setWidth(10),
-                                right: ScreenUtil().setWidth(10),
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                      height: 1,
-                                      margin: EdgeInsets.only(
-                                          top: ScreenUtil().setHeight(5),
-                                          right: ScreenUtil().setWidth(20)),
-                                      color: Color(0xffD0D0D0),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                      height: 1,
-                                      margin: EdgeInsets.only(
-                                          top: ScreenUtil().setHeight(5),
-                                          left: ScreenUtil().setWidth(20)),
-                                      color: Color(0xffD0D0D0),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            //Manufacture Date / Service Date
-                            Container(
-                              width: MediaQuery.of(context).size.width,
-                              height: ScreenUtil().setHeight(30),
-                              margin: EdgeInsets.only(
-                                left: ScreenUtil().setWidth(10),
-                                right: ScreenUtil().setWidth(10),
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                      flex: 1,
-                                      child: Container(
-                                        width: MediaQuery.of(context).size.width,
-                                        margin: EdgeInsets.only(
-                                            right: ScreenUtil().setWidth(10)),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              manufactureDate,
-                                              style: TextStyle(
-                                                  fontSize:
-                                                  ScreenUtil().setSp(11),
-                                                  fontWeight: FontWeight.w400,
-                                                  color: Color(0xff000000)),
-                                            ),
-                                            Container(
-                                                width: ScreenUtil().setWidth(20),
+                                        )),
+                                    Expanded(
+                                        flex: 1,
+                                        child: Container(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          margin: EdgeInsets.only(
+                                              left: ScreenUtil().setWidth(20)),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                serviceDate,
+                                                style: TextStyle(
+                                                    fontSize:
+                                                        ScreenUtil().setSp(11),
+                                                    fontWeight: FontWeight.w400,
+                                                    color: Color(0xff000000)),
+                                              ),
+                                              Container(
+                                                width:
+                                                    ScreenUtil().setWidth(20),
                                                 height:
-                                                ScreenUtil().setHeight(20),
-                                                margin: EdgeInsets.only(
-                                                    right: ScreenUtil()
-                                                        .setWidth(10)),
+                                                    ScreenUtil().setHeight(20),
                                                 child: InkWell(
                                                   onTap: () async {
                                                     var result =
-                                                    await showDatePicker(
-                                                      context: context,
-                                                      initialDate: DateTime.now(),
-                                                      firstDate: DateTime(2000),
-                                                      lastDate: DateTime(2050),
-                                                    ) as DateTime;
+                                                        await showDatePicker(
+                                                            context: context,
+                                                            initialDate:
+                                                                DateTime.now(),
+                                                            firstDate:
+                                                                DateTime(2000),
+                                                            lastDate: DateTime(
+                                                                2050)) as DateTime;
                                                     setState(() {
-                                                      manufactureDate =
-                                                          formatDate(result, [
-                                                            yyyy,
-                                                            '-',
-                                                            m,
-                                                            '-',
-                                                            d
-                                                          ]);
+                                                      serviceDate = formatDate(
+                                                          result, [
+                                                        yyyy,
+                                                        '-',
+                                                        m,
+                                                        '-',
+                                                        d
+                                                      ]);
                                                       print(
-                                                          'Manufacture Date: $manufactureDate');
+                                                          'Service Date: $serviceDate');
                                                     });
                                                   },
                                                   child: Image.asset(
                                                       "images/icon-calendar.png",
                                                       fit: BoxFit.fill),
-                                                ))
-                                          ],
-                                        ),
-                                      )),
-                                  Expanded(
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ))
+                                  ],
+                                ),
+                              ),
+
+                              //分割线
+                              Container(
+                                margin: EdgeInsets.only(
+                                  left: ScreenUtil().setWidth(10),
+                                  right: ScreenUtil().setWidth(10),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
                                       flex: 1,
                                       child: Container(
-                                        width: MediaQuery.of(context).size.width,
+                                        height: 1,
                                         margin: EdgeInsets.only(
+                                            top: ScreenUtil().setHeight(5),
+                                            right: ScreenUtil().setWidth(20)),
+                                        color: Color(0xffD0D0D0),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(
+                                        height: 1,
+                                        margin: EdgeInsets.only(
+                                            top: ScreenUtil().setHeight(5),
                                             left: ScreenUtil().setWidth(20)),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              serviceDate,
-                                              style: TextStyle(
-                                                  fontSize:
-                                                  ScreenUtil().setSp(11),
-                                                  fontWeight: FontWeight.w400,
-                                                  color: Color(0xff000000)),
-                                            ),
-                                            Container(
-                                              width: ScreenUtil().setWidth(20),
-                                              height: ScreenUtil().setHeight(20),
-                                              child: InkWell(
-                                                onTap: () async {
-                                                  var result =
-                                                  await showDatePicker(
-                                                      context: context,
-                                                      initialDate:
-                                                      DateTime.now(),
-                                                      firstDate:
-                                                      DateTime(2000),
-                                                      lastDate:
-                                                      DateTime(2050))
-                                                  as DateTime;
+                                        color: Color(0xffD0D0D0),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              //Asset Number
+                              Container(
+                                width: MediaQuery.of(context).size.width,
+                                height: ScreenUtil().setHeight(15),
+                                margin: EdgeInsets.only(
+                                  top: ScreenUtil().setHeight(5),
+                                  left: ScreenUtil().setWidth(10),
+                                  right: ScreenUtil().setWidth(10),
+                                ),
+                                child: Text(
+                                  number,
+                                  style: TextStyle(
+                                      fontSize: ScreenUtil().setSp(11),
+                                      fontWeight: FontWeight.w400,
+                                      color: Color(0xff000000)),
+                                ),
+                              ),
+
+                              //分割线
+                              Container(
+                                margin: EdgeInsets.only(
+                                  left: ScreenUtil().setWidth(10),
+                                  right: ScreenUtil().setWidth(10),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(
+                                        height: 1,
+                                        margin: EdgeInsets.only(
+                                            top: ScreenUtil().setHeight(5),
+                                            right: ScreenUtil().setWidth(20)),
+                                        color: Color(0xffD0D0D0),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(
+                                        height: 1,
+                                        margin: EdgeInsets.only(
+                                            top: ScreenUtil().setHeight(5),
+                                            left: ScreenUtil().setWidth(20)),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              Spacer(),
+                              //底部分割线
+                              Container(
+                                height: ScreenUtil().setHeight(5),
+                                margin: EdgeInsets.only(
+                                    top: ScreenUtil().setHeight(10)),
+                                color: Color(0xffD7D7D7),
+                              )
+                            ],
+                          ),
+                        )),
+
+                    //Specification
+                    Expanded(
+                        flex: 1,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          color: Color(0xffF2F2F2),
+                          child: Column(
+                            children: [
+                              //Specification
+                              Container(
+                                height: ScreenUtil().setHeight(25),
+                                padding: EdgeInsets.only(
+                                    left: ScreenUtil().setWidth(10),
+                                    top: ScreenUtil().setHeight(5)),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: ScreenUtil().setWidth(6),
+                                      height: ScreenUtil().setHeight(18),
+                                      margin: EdgeInsets.only(
+                                          right: ScreenUtil().setWidth(5)),
+                                      color: Color(0xffD7D7D7),
+                                    ),
+                                    Text(
+                                      "Specification",
+                                      style: TextStyle(
+                                          fontSize: ScreenUtil().setSp(14),
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w500),
+                                    )
+                                  ],
+                                ),
+                              ),
+
+                              //PopupMenuButton => Attribute Name / Attribute Value
+                              Container(
+                                width: MediaQuery.of(context).size.width,
+                                height: ScreenUtil().setHeight(30),
+                                padding: EdgeInsets.only(
+                                  left: ScreenUtil().setWidth(10),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    //Attribute Name
+                                    Expanded(
+                                        flex: 1,
+                                        child: Container(
+                                          margin: EdgeInsets.only(
+                                              right: ScreenUtil().setWidth(10)),
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Container(
+                                                padding: EdgeInsets.only(
+                                                    top: ScreenUtil()
+                                                        .setHeight(5)),
+                                                child: Text(
+                                                  attributeName,
+                                                  style: TextStyle(
+                                                      fontSize: ScreenUtil()
+                                                          .setSp(12),
+                                                      color: Color(0xff000000)),
+                                                ),
+                                              ),
+                                              PopupMenuButton(
+                                                icon: Icon(
+                                                  Icons.arrow_drop_down,
+                                                  size: ScreenUtil().setSp(25),
+                                                  color: Color(0xff7F7F7F),
+                                                ),
+                                                itemBuilder:
+                                                    (BuildContext context) {
+                                                  return List.generate(
+                                                    attributeNameHttpList
+                                                        .length,
+                                                    (index) => PopupMenuItem(
+                                                      child: Text(
+                                                        attributeNameHttpList[
+                                                            index]['name'],
+                                                        style: TextStyle(
+                                                            fontSize:
+                                                                ScreenUtil()
+                                                                    .setSp(12),
+                                                            color:
+                                                                Colors.black),
+                                                      ),
+                                                      value:
+                                                          attributeNameHttpList[
+                                                              index],
+                                                    ),
+                                                  );
+                                                },
+                                                onSelected: (value) {
                                                   setState(() {
-                                                    serviceDate = formatDate(
-                                                        result,
-                                                        [yyyy, '-', m, '-', d]);
+                                                    Map map = value as Map;
+                                                    attributeName = map['name'];
+                                                    attributeNameId = map['id'];
                                                     print(
-                                                        'Service Date: $serviceDate');
+                                                        'Attribute Name: $attributeName');
+                                                    getAttributeValue();
                                                   });
                                                 },
-                                                child: Image.asset(
-                                                    "images/icon-calendar.png",
-                                                    fit: BoxFit.fill),
+                                              )
+                                            ],
+                                          ),
+                                        )),
+
+                                    //Attribute Value
+                                    Expanded(
+                                        flex: 1,
+                                        child: Container(
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              //Attribute Value
+                                              Container(
+                                                margin: EdgeInsets.only(
+                                                    left: ScreenUtil()
+                                                        .setWidth(15),
+                                                    top: ScreenUtil()
+                                                        .setHeight(5)),
+                                                child: Text(
+                                                  attributeValue,
+                                                  style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: ScreenUtil()
+                                                          .setSp(12)),
+                                                ),
                                               ),
-                                            )
-                                          ],
-                                        ),
-                                      ))
-                                ],
-                              ),
-                            ),
 
-                            //分割线
-                            Container(
-                              margin: EdgeInsets.only(
-                                left: ScreenUtil().setWidth(10),
-                                right: ScreenUtil().setWidth(10),
+                                              PopupMenuButton(
+                                                icon: Icon(
+                                                  Icons.arrow_drop_down,
+                                                  color: Color(0xff7F7F7F),
+                                                  size: ScreenUtil().setSp(25),
+                                                ),
+                                                itemBuilder:
+                                                    (BuildContext context) {
+                                                  return List.generate(
+                                                    attributeValueHttpList
+                                                        .length,
+                                                    (index) => PopupMenuItem(
+                                                      child: Text(
+                                                        attributeValueHttpList[
+                                                            index]["value"],
+                                                        style: TextStyle(
+                                                            fontSize:
+                                                                ScreenUtil()
+                                                                    .setSp(12),
+                                                            color:
+                                                                Colors.black),
+                                                      ),
+                                                      value:
+                                                          attributeValueHttpList[
+                                                              index],
+                                                    ),
+                                                  );
+                                                },
+                                                onSelected: (value) {
+                                                  setState(() {
+                                                    Map map = value as Map;
+                                                    attributeValue =
+                                                        map['value'];
+                                                    print(
+                                                        'attributeValue: $attributeValue');
+                                                  });
+                                                },
+                                              )
+                                            ],
+                                          ),
+                                        ))
+                                  ],
+                                ),
                               ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                      height: 1,
-                                      margin: EdgeInsets.only(
-                                          top: ScreenUtil().setHeight(5),
-                                          right: ScreenUtil().setWidth(20)),
-                                      color: Color(0xffD0D0D0),
-                                    ),
+
+                              //分割线
+                              Container(
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                        flex: 1,
+                                        child: Container(
+                                          height: 1,
+                                          color: Color(0xffD3D3D3),
+                                          margin: EdgeInsets.only(
+                                              left: ScreenUtil().setWidth(10),
+                                              right: ScreenUtil().setWidth(20)),
+                                        )),
+                                    Expanded(
+                                        flex: 1,
+                                        child: Container(
+                                          height: 1,
+                                          color: Color(0xffD3D3D3),
+                                          margin: EdgeInsets.only(
+                                              left: ScreenUtil().setWidth(20),
+                                              right:
+                                                  ScreenUtil().setHeight(10)),
+                                        )),
+                                  ],
+                                ),
+                              ),
+
+                              //Button => Add to List
+                              Container(
+                                alignment: Alignment.centerRight,
+                                width: MediaQuery.of(context).size.width,
+                                padding: EdgeInsets.only(
+                                    top: ScreenUtil().setHeight(5),
+                                    right: ScreenUtil().setWidth(10)),
+                                child: Container(
+                                  width: ScreenUtil().setWidth(90),
+                                  height: ScreenUtil().setHeight(25),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                          width: 1, color: Color(0xff868686)),
+                                      borderRadius: BorderRadius.circular(
+                                          ScreenUtil().setSp(3))),
+                                  //点击事件
+                                  child: MaterialButton(
+                                    onPressed: () {
+                                      repeat = true;
+                                      if (attributeName != "Attribute Name" &&
+                                          attributeValue != "Attribute Value") {
+                                        //true: 不重复，false: 重复
+                                        attributeNameList.forEach((element) {
+                                          if (attributeName == element) {
+                                            Fluttertoast.showToast(
+                                                msg:
+                                                    "Duplicate attribute name!\nPlease reselect！");
+                                            repeat = false;
+                                          }
+                                        });
+                                        if (repeat) {
+                                          setState(() {
+                                            specificationMap[attributeName] =
+                                                attributeValue;
+                                            attributeNameList
+                                                .add(attributeName);
+                                            attributeValueList
+                                                .add(attributeValue);
+                                            items.add(items.length);
+                                            repeat = false;
+                                          });
+                                        }
+                                      }
+                                    },
+                                    child: Text("Add to List",
+                                        style: TextStyle(
+                                            fontSize: ScreenUtil().setSp(10))),
                                   ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                      height: 1,
-                                      margin: EdgeInsets.only(
-                                          top: ScreenUtil().setHeight(5),
-                                          left: ScreenUtil().setWidth(20)),
-                                      color: Color(0xffD0D0D0),
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
 
-                            //Asset Number
-                            Container(
-                              width: MediaQuery.of(context).size.width,
-                              height: ScreenUtil().setHeight(15),
-                              margin: EdgeInsets.only(
-                                top: ScreenUtil().setHeight(5),
-                                left: ScreenUtil().setWidth(10),
-                                right: ScreenUtil().setWidth(10),
-                              ),
-                              child: Text(
-                                number,
-                                style: TextStyle(
-                                    fontSize: ScreenUtil().setSp(11),
-                                    fontWeight: FontWeight.w400,
-                                    color: Color(0xff000000)),
-                              ),
-                            ),
-
-                            //分割线
-                            Container(
-                              margin: EdgeInsets.only(
-                                left: ScreenUtil().setWidth(10),
-                                right: ScreenUtil().setWidth(10),
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                      height: 1,
-                                      margin: EdgeInsets.only(
-                                          top: ScreenUtil().setHeight(5),
-                                          right: ScreenUtil().setWidth(20)),
-                                      color: Color(0xffD0D0D0),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                      height: 1,
-                                      margin: EdgeInsets.only(
-                                          top: ScreenUtil().setHeight(5),
-                                          left: ScreenUtil().setWidth(20)),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            Spacer(),
-                            //底部分割线
-                            Container(
-                              height: ScreenUtil().setHeight(5),
-                              margin: EdgeInsets.only(
-                                  top: ScreenUtil().setHeight(10)),
-                              color: Color(0xffD7D7D7),
-                            )
-                          ],
-                        ),
-                      )),
-
-                  //Specification
-                  Expanded(
-                      flex: 1,
-                      child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        color: Color(0xffF2F2F2),
-                        child: Column(
-                          children: [
-                            //Specification
-                            Container(
-                              height: ScreenUtil().setHeight(25),
-                              padding: EdgeInsets.only(
-                                  left: ScreenUtil().setWidth(10),
-                                  top: ScreenUtil().setHeight(5)),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    width: ScreenUtil().setWidth(6),
-                                    height: ScreenUtil().setHeight(18),
-                                    margin: EdgeInsets.only(
-                                        right: ScreenUtil().setWidth(5)),
-                                    color: Color(0xffD7D7D7),
-                                  ),
-                                  Text(
-                                    "Specification",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(14),
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.w500),
-                                  )
-                                ],
-                              ),
-                            ),
-
-                            //PopupMenuButton => Attribute Name / Attribute Value
-                            Container(
-                              width: MediaQuery.of(context).size.width,
-                              height: ScreenUtil().setHeight(30),
-                              padding: EdgeInsets.only(
-                                left: ScreenUtil().setWidth(10),
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  //Attribute Name
-                                  Expanded(
-                                      flex: 1,
-                                      child: Container(
-                                        margin: EdgeInsets.only(
-                                            right: ScreenUtil().setWidth(10)),
+                              //ListView => Attribute Name / Attribute Value
+                              Container(
+                                width: MediaQuery.of(context).size.width,
+                                height: ScreenUtil().setHeight(110),
+                                padding: EdgeInsets.only(
+                                    left: ScreenUtil().setWidth(10),
+                                    right: ScreenUtil().setWidth(10),
+                                    top: ScreenUtil().setHeight(5)),
+                                child: ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: items.length,
+                                    itemBuilder: (context, index) {
+                                      return Container(
+                                        height: ScreenUtil().setHeight(30),
+                                        margin: EdgeInsets.only(bottom: 3),
+                                        decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            border: Border.all(
+                                                width: 1,
+                                                color: Color(0xffD7D7D7)),
+                                            borderRadius:
+                                                BorderRadius.circular(3)),
                                         child: Row(
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
                                           children: [
+                                            //Attribute Name
                                             Container(
-                                              padding: EdgeInsets.only(
-                                                  top: ScreenUtil().setHeight(5)),
+                                              margin: EdgeInsets.symmetric(
+                                                  horizontal:
+                                                      ScreenUtil().setWidth(5)),
                                               child: Text(
-                                                attributeName,
+                                                attributeNameList[index],
                                                 style: TextStyle(
                                                     fontSize:
-                                                    ScreenUtil().setSp(12),
-                                                    color: Color(0xff000000)),
+                                                        ScreenUtil().setSp(12)),
                                               ),
                                             ),
-                                            PopupMenuButton(
-                                              icon: Icon(
-                                                Icons.arrow_drop_down,
-                                                size: ScreenUtil().setSp(25),
-                                                color: Color(0xff7F7F7F),
-                                              ),
-                                              itemBuilder:
-                                                  (BuildContext context) {
-                                                return List.generate(
-                                                  attributeNameHttpList.length,
-                                                      (index) => PopupMenuItem(
-                                                    child: Text(
-                                                      attributeNameHttpList[index]
-                                                      ['name'],
-                                                      style: TextStyle(
-                                                          fontSize: ScreenUtil()
-                                                              .setSp(12),
-                                                          color: Colors.black),
-                                                    ),
-                                                    value: attributeNameHttpList[
-                                                    index],
-                                                  ),
-                                                );
-                                              },
-                                              onSelected: (value) {
-                                                setState(() {
-                                                  Map map = value as Map;
-                                                  attributeName = map['name'];
-                                                  attributeNameId = map['id'];
-                                                  print(
-                                                      'Attribute Name: $attributeName');
-                                                  getAttributeValue();
-                                                });
-                                              },
-                                            )
-                                          ],
-                                        ),
-                                      )
-                                  ),
 
-                                  //Attribute Value
-                                  Expanded(
-                                      flex: 1,
-                                      child: Container(
-                                        child: Row(
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                          children: [
+                                            Container(
+                                              margin: EdgeInsets.only(
+                                                left: ScreenUtil().setWidth(5),
+                                                right:
+                                                    ScreenUtil().setWidth(10),
+                                              ),
+                                              child: Text(
+                                                "/",
+                                                style: TextStyle(
+                                                    fontSize:
+                                                        ScreenUtil().setSp(12)),
+                                              ),
+                                            ),
+
                                             //Attribute Value
                                             Container(
                                               margin: EdgeInsets.only(
-                                                  left: ScreenUtil().setWidth(15),
-                                                  top: ScreenUtil().setHeight(5)),
+                                                  left: ScreenUtil()
+                                                      .setWidth(10)),
                                               child: Text(
-                                                attributeValue,
+                                                attributeValueList[index],
                                                 style: TextStyle(
-                                                    color: Colors.black,
                                                     fontSize:
-                                                    ScreenUtil().setSp(12)),
+                                                        ScreenUtil().setSp(12)),
                                               ),
                                             ),
 
-                                            PopupMenuButton(
-                                              icon: Icon(
-                                                Icons.arrow_drop_down,
-                                                color: Color(0xff7F7F7F),
-                                                size: ScreenUtil().setSp(25),
+                                            Expanded(child: SizedBox()),
+
+                                            //DeleteButton
+                                            Container(
+                                              width: ScreenUtil().setWidth(20),
+                                              height:
+                                                  ScreenUtil().setHeight(20),
+                                              margin: EdgeInsets.only(
+                                                  right:
+                                                      ScreenUtil().setWidth(5)),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  setState(() {
+                                                    items.removeAt(index);
+                                                    attributeNameList
+                                                        .removeAt(index);
+                                                    attributeValueList
+                                                        .removeAt(index);
+                                                  });
+                                                },
+                                                child: Image.asset(
+                                                    "images/icon-delete.png",
+                                                    fit: BoxFit.fill),
                                               ),
-                                              itemBuilder:
-                                                  (BuildContext context) {
-                                                return List.generate(
-                                                  attributeValueHttpList.length,
-                                                      (index) => PopupMenuItem(
-                                                    child: Text(
-                                                      attributeValueHttpList[
-                                                      index]["value"],
-                                                      style: TextStyle(
-                                                          fontSize: ScreenUtil()
-                                                              .setSp(12),
-                                                          color: Colors.black),
-                                                    ),
-                                                    value: attributeValueHttpList[
-                                                    index],
-                                                  ),
-                                                );
-                                              },
-                                              onSelected: (value) {
-                                                setState(() {
-                                                  Map map = value as Map;
-                                                  attributeValue = map['value'];
-                                                  print('attributeValue: $attributeValue');
-                                                });
-                                              },
-                                            )
+                                            ),
                                           ],
                                         ),
-                                      )
-                                  )
-                                ],
+                                      );
+                                    }),
                               ),
-                            ),
 
-                            //分割线
-                            Container(
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                      flex: 1,
-                                      child: Container(
-                                        height: 1,
-                                        color: Color(0xffD3D3D3),
-                                        margin: EdgeInsets.only(
-                                            left: ScreenUtil().setWidth(10),
-                                            right: ScreenUtil().setWidth(20)),
-                                      )),
-                                  Expanded(
-                                      flex: 1,
-                                      child: Container(
-                                        height: 1,
-                                        color: Color(0xffD3D3D3),
-                                        margin: EdgeInsets.only(
-                                            left: ScreenUtil().setWidth(20),
-                                            right: ScreenUtil().setHeight(10)),
-                                      )),
-                                ],
-                              ),
-                            ),
+                              //底部分割线
+                              Spacer(),
+                              Container(
+                                width: MediaQuery.of(context).size.width,
+                                height: ScreenUtil().setHeight(5),
+                                color: Color(0xffD7D7D7),
+                              )
+                            ],
+                          ),
+                        )),
 
-                            //Button => Add to List
-                            Container(
-                              alignment: Alignment.centerRight,
-                              width: MediaQuery.of(context).size.width,
-                              padding: EdgeInsets.only(
-                                  top: ScreenUtil().setHeight(5),
-                                  right: ScreenUtil().setWidth(10)),
-                              child: Container(
-                                width: ScreenUtil().setWidth(90),
-                                height: ScreenUtil().setHeight(25),
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                        width: 1, color: Color(0xff868686)),
-                                    borderRadius: BorderRadius.circular(
-                                        ScreenUtil().setSp(3))),
-                                //点击事件
-                                child: MaterialButton(
-                                  onPressed: () {
-                                    repeat = true;
-                                    if (attributeName != "Attribute Name" &&
-                                        attributeValue != "Attribute Value") {
-
-                                      //true: 不重复，false: 重复
-                                      attributeNameList.forEach((element) {
-                                        if (attributeName == element) {
-                                          Fluttertoast.showToast(
-                                              msg: "Duplicate attribute name!\nPlease reselect！");
-                                          repeat = false;
-                                        }
-                                      });
-                                      if (repeat) {
-                                        setState(() {
-                                          specificationMap[attributeName] = attributeValue;
-                                          attributeNameList.add(attributeName);
-                                          attributeValueList.add(attributeValue);
-                                          items.add(items.length);
-                                          repeat = false;
-                                        });
-                                      }
-                                    }
-                                  },
-                                  child: Text("Add to List",
+                    //Photo
+                    Expanded(
+                        flex: 1,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          color: Color(0xffF2F2F2),
+                          child: Column(
+                            children: [
+                              //Photo
+                              Container(
+                                height: ScreenUtil().setHeight(30),
+                                padding: EdgeInsets.only(
+                                    left: ScreenUtil().setWidth(10),
+                                    top: ScreenUtil().setHeight(5)),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: ScreenUtil().setWidth(6),
+                                      height: ScreenUtil().setHeight(18),
+                                      margin: EdgeInsets.only(
+                                          right: ScreenUtil().setWidth(5)),
+                                      color: Color(0xffD7D7D7),
+                                    ),
+                                    Text(
+                                      "Photo",
                                       style: TextStyle(
-                                          fontSize: ScreenUtil().setSp(10))),
+                                          fontSize: ScreenUtil().setSp(14),
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
 
-                            //ListView => Attribute Name / Attribute Value
-                            Container(
-                              width: MediaQuery.of(context).size.width,
-                              height: ScreenUtil().setHeight(110),
-                              padding: EdgeInsets.only(
-                                  left: ScreenUtil().setWidth(10),
-                                  right: ScreenUtil().setWidth(10),
-                                  top: ScreenUtil().setHeight(5)),
-                              child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: items.length,
-                                  itemBuilder: (context, index) {
-                                    return Container(
-                                      height: ScreenUtil().setHeight(30),
-                                      margin: EdgeInsets.only(bottom: 3),
-                                      decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          border: Border.all(
-                                              width: 1, color: Color(0xffD7D7D7)),
-                                          borderRadius: BorderRadius.circular(3)),
-                                      child: Row(
-                                        children: [
-                                          //Attribute Name
-                                          Container(
-                                            margin: EdgeInsets.symmetric(
-                                                horizontal:
-                                                ScreenUtil().setWidth(5)),
-                                            child: Text(
-                                              attributeNameList[index],
-                                              style: TextStyle(
-                                                  fontSize:
-                                                  ScreenUtil().setSp(12)),
-                                            ),
-                                          ),
-
-                                          Container(
-                                            margin: EdgeInsets.only(
-                                              left: ScreenUtil().setWidth(5),
-                                              right: ScreenUtil().setWidth(10),
-                                            ),
-                                            child: Text(
-                                              "/",
-                                              style: TextStyle(
-                                                  fontSize:
-                                                  ScreenUtil().setSp(12)),
-                                            ),
-                                          ),
-
-                                          //Attribute Value
-                                          Container(
-                                            margin: EdgeInsets.only(
-                                                left: ScreenUtil().setWidth(10)),
-                                            child: Text(
-                                              attributeValueList[index],
-                                              style: TextStyle(
-                                                  fontSize:
-                                                  ScreenUtil().setSp(12)),
-                                            ),
-                                          ),
-
-                                          Expanded(child: SizedBox()),
-
-                                          //DeleteButton
-                                          Container(
-                                            width: ScreenUtil().setWidth(20),
-                                            height: ScreenUtil().setHeight(20),
-                                            margin: EdgeInsets.only(
-                                                right: ScreenUtil().setWidth(5)),
-                                            child: InkWell(
-                                              onTap: () {
-                                                setState(() {
-                                                  items.removeAt(index);
-                                                  attributeNameList.removeAt(index);
-                                                  attributeValueList.removeAt(index);
-                                                });
-                                              },
-                                              child: Image.asset(
-                                                  "images/icon-delete.png",
-                                                  fit: BoxFit.fill),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }),
-                            ),
-
-                            //底部分割线
-                            Spacer(),
-                            Container(
-                              width: MediaQuery.of(context).size.width,
-                              height: ScreenUtil().setHeight(5),
-                              color: Color(0xffD7D7D7),
-                            )
-                          ],
-                        ),
-                      )),
-
-                  //Photo
-                  Expanded(
-                      flex: 1,
-                      child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        color: Color(0xffF2F2F2),
-                        child: Column(
-                          children: [
-                            //Photo
-                            Container(
-                              height: ScreenUtil().setHeight(30),
-                              padding: EdgeInsets.only(
-                                  left: ScreenUtil().setWidth(10),
-                                  top: ScreenUtil().setHeight(5)),
-                              child: Row(
+                              //图片
+                              Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Container(
-                                    width: ScreenUtil().setWidth(6),
-                                    height: ScreenUtil().setHeight(18),
-                                    margin: EdgeInsets.only(
-                                        right: ScreenUtil().setWidth(5)),
-                                    color: Color(0xffD7D7D7),
+                                  Expanded(
+                                    flex: 5,
+                                    child: Container(
+                                        alignment: Alignment.center,
+                                        margin: EdgeInsets.only(
+                                            left: ScreenUtil().setWidth(10),
+                                            top: ScreenUtil().setHeight(10)),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              flex: 1,
+                                              child: Container(
+                                                width:
+                                                    ScreenUtil().setWidth(100),
+                                                height:
+                                                    ScreenUtil().setHeight(70),
+                                                margin: EdgeInsets.only(
+                                                    right: ScreenUtil()
+                                                        .setHeight(5)),
+                                                color: Color(0xffCCCCCC),
+                                                padding: EdgeInsets.all(
+                                                    ScreenUtil().setSp(5)),
+                                                child: photosList.isNotEmpty
+                                                    ? Image.asset(
+                                                        "images/${photosList[0]['photo']}",
+                                                        fit: BoxFit.fill)
+                                                    : Image.asset(
+                                                        "images/image_null.png",
+                                                        fit: BoxFit.fill),
+                                              ),
+                                            ),
+                                            Expanded(
+                                              flex: 1,
+                                              child: Container(
+                                                width:
+                                                    ScreenUtil().setWidth(100),
+                                                height:
+                                                    ScreenUtil().setHeight(70),
+                                                margin: EdgeInsets.only(
+                                                    left: ScreenUtil()
+                                                        .setHeight(5)),
+                                                color: Color(0xffCCCCCC),
+                                                padding: EdgeInsets.all(
+                                                    ScreenUtil().setSp(5)),
+                                                child: image != null
+                                                    ? Image.file(File(image!.path), fit: BoxFit.fill)
+                                                    : Image.asset("images/image_null.png", fit: BoxFit.fill),
+                                              ),
+                                            ),
+                                          ],
+                                        )),
                                   ),
-                                  Text(
-                                    "Photo",
-                                    style: TextStyle(
-                                        fontSize: ScreenUtil().setSp(14),
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.w500),
-                                  ),
+
+                                  //add
+                                  Expanded(
+                                      flex: 2,
+                                      child: Container(
+                                        height: ScreenUtil().setHeight(90),
+                                        alignment: Alignment.bottomLeft,
+                                        child: InkWell(
+                                          onTap: () {
+                                            addPhoto();
+                                          },
+                                          child: Container(
+                                            width: ScreenUtil().setWidth(40),
+                                            height: ScreenUtil().setHeight(40),
+                                            child: Image.asset(
+                                                "images/icon-add.png",
+                                                fit: BoxFit.fill),
+                                          ),
+                                        ),
+                                      )),
                                 ],
                               ),
-                            ),
-
-                            //图片
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  flex: 5,
-                                  child: Container(
-                                      alignment: Alignment.center,
-                                      margin: EdgeInsets.only(
-                                          left: ScreenUtil().setWidth(10),
-                                          top: ScreenUtil().setHeight(10)
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              width: ScreenUtil().setWidth(100),
-                                              height: ScreenUtil().setHeight(70),
-                                              margin: EdgeInsets.only(
-                                                  right: ScreenUtil().setHeight(5)
-                                              ),
-                                              color: Color(0xffCCCCCC),
-                                              padding: EdgeInsets.all(ScreenUtil().setSp(5)),
-                                              child: photosList.isNotEmpty?
-                                              Image.asset("images/${photosList[0]['photo']}",fit: BoxFit.fill)
-                                                  :
-                                              Image.asset("images/image_null.png",fit: BoxFit.fill),
-                                            ),
-                                          ),
-
-                                          Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              width: ScreenUtil().setWidth(100),
-                                              height: ScreenUtil().setHeight(70),
-                                              margin: EdgeInsets.only(
-                                                  left: ScreenUtil().setHeight(5)
-                                              ),
-                                              color: Color(0xffCCCCCC),
-                                              padding: EdgeInsets.all(ScreenUtil().setSp(5)),
-                                              child: image!=null?
-                                              Image.file(File(image!.path),fit: BoxFit.fill)
-                                                  :
-                                              Image.asset("images/image_null.png",fit: BoxFit.fill),
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                  ),
-                                ),
-
-                                //add
-                                Expanded(
-                                    flex: 2,
-                                    child: Container(
-                                      height: ScreenUtil().setHeight(90),
-                                      alignment: Alignment.bottomLeft,
-                                      child: InkWell(
-                                        onTap: () {
-                                          addPhoto();
-                                        },
-                                        child: Container(
-                                          width: ScreenUtil().setWidth(40),
-                                          height: ScreenUtil().setHeight(40),
-                                          child: Image.asset("images/icon-add.png", fit: BoxFit.fill),
-                                        ),
-                                      ),
-                                    )),
-                              ],
-                            ),
-                          ],
-                        ),
-                      )),
-                ],
+                            ],
+                          ),
+                        )),
+                  ],
+                ),
               ),
-            ),
-          )
-        )
-    );
+            )));
   }
 
   addPhoto() async {
     showModalBottomSheet(
-        shape:  RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(ScreenUtil().setSp(10)),
-            topRight: Radius.circular(ScreenUtil().setSp(10)),
-          )
-        ),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(ScreenUtil().setSp(10)),
+          topRight: Radius.circular(ScreenUtil().setSp(10)),
+        )),
         context: context,
         backgroundColor: Colors.white,
-        builder: (context) =>StatefulBuilder(
-            builder: (builder,State) {
+        builder: (context) => StatefulBuilder(builder: (builder, State) {
               return Container(
-                height: photosList.isNotEmpty? ScreenUtil().setHeight(400):ScreenUtil().setHeight(145),
+                height: photosList.isNotEmpty
+                    ? ScreenUtil().setHeight(400)
+                    : ScreenUtil().setHeight(145),
                 child: Column(
                   children: [
-
                     Visibility(
                       child: Container(
-                          height: ScreenUtil().setHeight(230),
-                          padding: EdgeInsets.all(ScreenUtil().setSp(10)),
-                          child: GridView.builder(
-                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 3,
-                                  childAspectRatio: 1.5,
-                                  mainAxisSpacing: 10.0,
-                                  crossAxisSpacing: 10.0
-                              ),
-                              itemCount: photosList.length,
-                              itemBuilder: (context, index) {
-                                return Container(
-                                  padding: EdgeInsets.only(
-                                      top: ScreenUtil().setHeight(10),
-                                      right: ScreenUtil().setWidth(10)
-                                  ),
-                                  child: Stack(
-                                    children: [
-
-                                      Align(
-                                        alignment: Alignment(0,0),
+                        height: ScreenUtil().setHeight(230),
+                        padding: EdgeInsets.all(ScreenUtil().setSp(10)),
+                        child: GridView.builder(
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 3,
+                                    childAspectRatio: 1.5,
+                                    mainAxisSpacing: 10.0,
+                                    crossAxisSpacing: 10.0),
+                            itemCount: photosList.length,
+                            itemBuilder: (context, index) {
+                              return Container(
+                                padding: EdgeInsets.only(
+                                    top: ScreenUtil().setHeight(10),
+                                    right: ScreenUtil().setWidth(10)),
+                                child: Stack(
+                                  children: [
+                                    Align(
+                                      alignment: Alignment(0, 0),
+                                      child: Container(
+                                        width: ScreenUtil().setHeight(95),
+                                        height: ScreenUtil().setHeight(90),
+                                        color: Color(0xffCCCCCC),
+                                        padding: EdgeInsets.all(
+                                            ScreenUtil().setSp(5)),
+                                        child: Image.asset("images/${photosList[index]['photo']}",
+                                            fit: BoxFit.fill),
+                                      ),
+                                    ),
+                                    Align(
+                                      alignment: Alignment(1.2, -1.4),
+                                      child: InkWell(
+                                        onTap: () {
+                                          photoId = photosList[index]['id'];
+                                          State(() {
+                                            photosList.removeAt(index);
+                                            // print('photoList: $photosList');
+                                          });
+                                          setState(() {});
+                                          postDelete(); //删除
+                                        },
                                         child: Container(
-                                          width: ScreenUtil().setHeight(95),
-                                          height: ScreenUtil().setHeight(90),
-                                          color: Color(0xffCCCCCC),
-                                          padding: EdgeInsets.all(
-                                              ScreenUtil().setSp(5)
-                                          ),
-                                          child: Image.asset("images/${photosList[index]['photo']}", fit: BoxFit.fill),
+                                          width: ScreenUtil().setWidth(25),
+                                          height: ScreenUtil().setHeight(25),
+                                          child: Image.asset(
+                                              "images/icon-delete.png",
+                                              fit: BoxFit.fill),
                                         ),
                                       ),
-
-                                      Align(
-                                        alignment: Alignment(1.2,-1.4),
-                                        child: InkWell(
-                                          onTap: (){
-                                            photoId = photosList[index]['id'];
-                                            State(() {
-                                              photosList.removeAt(index);
-                                              // print('photoList: $photosList');
-                                            });
-                                            setState(() {
-                                            });
-                                            postDelete();//删除
-                                          },
-                                          child: Container(
-                                            width: ScreenUtil().setWidth(25),
-                                            height: ScreenUtil().setHeight(25),
-                                            child: Image.asset("images/icon-delete.png",fit: BoxFit.fill),
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                );
-                              }),
-                        ),
-                      visible: photosList.isNotEmpty? true:false,
+                                    )
+                                  ],
+                                ),
+                              );
+                            }),
+                      ),
+                      visible: photosList.isNotEmpty ? true : false,
                     ),
 
                     //居于底部
@@ -1318,21 +1352,19 @@ class _RegisterEditAssetState extends State<RegisterEditAsset> {
                         height: 1,
                         color: Color(0xffD7D7D7),
                       ),
-                      visible: photosList.isNotEmpty? true:false,
+                      visible: photosList.isNotEmpty ? true : false,
                     ),
                     //拍照
                     ListTile(
                       title: Text("拍照", textAlign: TextAlign.center),
                       onTap: () async {
                         Navigator.pop(context);
-                        ImagePicker _picker = ImagePicker();
                         file = await _picker.pickImage(source: ImageSource.camera);
 
                         setState(() {
-                         image = file;
-                         print('image:${image!.path}');
+                          image = file;
+                          print('image:${image!.path}');
                         });
-
                       },
                     ),
                     Container(
@@ -1342,10 +1374,10 @@ class _RegisterEditAssetState extends State<RegisterEditAsset> {
                     //选择相册
                     ListTile(
                       title: Text("选择照片", textAlign: TextAlign.center),
-                      onTap: () async{
+                      onTap: () async {
                         Navigator.pop(context);
-                        ImagePicker _picker = ImagePicker();
-                        file = await _picker.pickImage(source: ImageSource.gallery);
+                        file = await _picker.pickImage(
+                            source: ImageSource.gallery);
                         setState(() {
                           image = file;
                           print('image:${image!.path}');
@@ -1366,25 +1398,21 @@ class _RegisterEditAssetState extends State<RegisterEditAsset> {
                   ],
                 ),
               );
-            }
-        )
-    );
+            }));
   }
 
   //删除
-  postDelete() async{
-
+  postDelete() async {
     Map map = {
-      'Id':photoId,
-      'AssetId':assetId,
+      'Id': photoId,
+      'AssetId': assetId,
     };
 
     http.Response response = await http.post(
-      Uri.parse("http://10.0.2.2:5000/api/AssetPhoto/DeleteAssetPhoto"),
-      headers: {"content-type":"application/json"},
-      body: json.encode(map)
-    );
-    if(response.statusCode == 200){
+        Uri.parse("http://10.0.2.2:5000/api/AssetPhoto/DeleteAssetPhoto"),
+        headers: {"content-type": "application/json"},
+        body: json.encode(map));
+    if (response.statusCode == 200) {
       var responseBody = json.decode(response.body);
       print("删除成功，返回值： $responseBody");
     }
@@ -1401,30 +1429,28 @@ class _RegisterEditAssetState extends State<RegisterEditAsset> {
         specMap.putIfAbsent(element, () => element1);
       });
     });
-    Map updateMap ={};
+    Map updateMap = {};
 
-    if(name=="Asset Name"){
-      if(assetNameText!=""){
+    if (name == "Asset Name") {
+      if (assetNameText != "") {
         name = assetNameText;
-      }else{
-        Fluttertoast.showToast(
-            msg: "请输入用户名"
-        );
+      } else {
+        Fluttertoast.showToast(msg: "请输入用户名");
       }
-    }else{
-      if(assetNameText!=""){
+    } else {
+      if (assetNameText != "") {
         name = assetNameText;
       }
-      if(price == "Price"){
-        if(priceText != ""){
+      if (price == "Price") {
+        if (priceText != "") {
           price = priceText;
-        }else{
+        } else {
           Fluttertoast.showToast(msg: "资产金额不能为空！");
         }
-      }else{
-        if(priceText != ""){
+      } else {
+        if (priceText != "") {
           price = priceText;
-        } else if(specMap.isEmpty){
+        } else if (specMap.isEmpty) {
           updateMap = {
             "id": assetId,
             "name": name,
@@ -1434,7 +1460,7 @@ class _RegisterEditAssetState extends State<RegisterEditAsset> {
             "price": price,
             "serviceDate": serviceDate,
           };
-        }else{
+        } else {
           updateMap = {
             "id": assetId,
             "name": name,
@@ -1445,35 +1471,33 @@ class _RegisterEditAssetState extends State<RegisterEditAsset> {
             "specification": json.encode(specMap)
           };
           print('提交数据: $updateMap');
-          
+
           var response = await http.post(
-            Uri.parse("http://10.0.2.2:5000/api/Asset/UpdateAsset"),
-            headers: {"content-type": "application/json"},
-            body: json.encode(updateMap)
-          );
+              Uri.parse("http://10.0.2.2:5000/api/Asset/UpdateAsset"),
+              headers: {"content-type": "application/json"},
+              body: json.encode(updateMap));
           print("响应码：${response.statusCode}");
-          if(response.statusCode == 200){
+          if (response.statusCode == 200) {
             Fluttertoast.showToast(msg: "更新成功！");
             //返回
             Navigator.pop(context);
             print('返回值：${response.body}');
-          }else if(response.statusCode == 400){
+          } else if (response.statusCode == 400) {
             Fluttertoast.showToast(msg: response.body);
             print('返回值：${response.body}');
           }
-          
         }
       }
     }
   }
 
   //注册
-  _register() async{
-
+  _register() async {
     String assetNameText = _assetNameText.text;
     String priceText = _priceText.text;
     DateTime now = DateTime.now();
-    String nowTime = formatDate(now, [yyyy, '-',mm, '-', dd,' ',HH,':',nn,':',ss]);
+    String nowTime =
+        formatDate(now, [yyyy, '-', mm, '-', dd, ' ', HH, ':', nn, ':', ss]);
     // print("当前时间：$nowTime");
 
     Map specMap = {};
@@ -1483,52 +1507,38 @@ class _RegisterEditAssetState extends State<RegisterEditAsset> {
       });
     });
 
-    if(name=="Asset Name"){
-      if(assetNameText!=""){
+    if (name == "Asset Name") {
+      if (assetNameText != "") {
         name = assetNameText;
-      }else{
-        Fluttertoast.showToast(
-            msg: "请输入用户名"
-        );
+      } else {
+        Fluttertoast.showToast(msg: "请输入用户名");
       }
-    }else{
-      if(assetNameText!=""){
+    } else {
+      if (assetNameText != "") {
         name = assetNameText;
       }
-      
-      if(price=="Price"){
-        if(priceText!=""){
+
+      if (price == "Price") {
+        if (priceText != "") {
           price = priceText;
-        }else{
-          Fluttertoast.showToast(
-              msg: "请输入资产金额"
-          );
+        } else {
+          Fluttertoast.showToast(msg: "请输入资产金额");
         }
-      }else{
-        if(priceText!=""){
+      } else {
+        if (priceText != "") {
           price = priceText;
         }
-        if(categoryId==null){
-          Fluttertoast.showToast(
-              msg: "请选择资产类别"
-          );
-        }else if(departmentId==null){
-          Fluttertoast.showToast(
-              msg: "请选择部门"
-          );
-        }else if(manufactureDate == "Manufacture Date"){
-          Fluttertoast.showToast(
-              msg: "请选择生产日期"
-          );
-        }else if(serviceDate == "Service Date"){
-          Fluttertoast.showToast(
-              msg: "请选择结束日期"
-          );
-        }else if(specMap.isEmpty){
-          Fluttertoast.showToast(
-              msg: "请至少添加一个属性与属性值"
-          );
-        }else{
+        if (categoryId == null) {
+          Fluttertoast.showToast(msg: "请选择资产类别");
+        } else if (departmentId == null) {
+          Fluttertoast.showToast(msg: "请选择部门");
+        } else if (manufactureDate == "Manufacture Date") {
+          Fluttertoast.showToast(msg: "请选择生产日期");
+        } else if (serviceDate == "Service Date") {
+          Fluttertoast.showToast(msg: "请选择结束日期");
+        } else if (specMap.isEmpty) {
+          Fluttertoast.showToast(msg: "请至少添加一个属性与属性值");
+        } else {
           Map updateMap = {
             "name": name,
             "assetNumber": number,
@@ -1542,25 +1552,23 @@ class _RegisterEditAssetState extends State<RegisterEditAsset> {
           };
           print('提交数据: $updateMap');
           var response = await http.post(
-           Uri.parse("http://10.0.2.2:5000/api/Asset/AddAsset") ,
-            headers: {"content-type": "application/json"},
-            body: json.encode(updateMap)
-          );
-          if(response.statusCode == 200){
-            Fluttertoast.showToast(
-                msg: "注册成功！"
-            );
+              Uri.parse("http://10.0.2.2:5000/api/Asset/AddAsset"),
+              headers: {"content-type": "application/json"},
+              body: json.encode(updateMap));
+          if (response.statusCode == 200) {
+            Fluttertoast.showToast(msg: "注册成功！");
             //返回
             Navigator.pop(context);
             print('注册成功，返回值：${response.body}');
           }
-          if(response.statusCode == 400){
+          if (response.statusCode == 400) {
             print('response.body: ${response.body}');
-            if(response.body=="Assetnumber already exists"){
+            if (response.body == "Assetnumber already exists") {
               Fluttertoast.showToast(msg: "资产名字已存在！");
-            }else if(response.body == "DepartmentId does not conform to FK constraint"){
+            } else if (response.body ==
+                "DepartmentId does not conform to FK constraint") {
               Fluttertoast.showToast(msg: "部门Id不符合FK约束！");
-            }else if(response.body == "Assetnumber already exists"){
+            } else if (response.body == "Assetnumber already exists") {
               Fluttertoast.showToast(msg: "资产编号已存在！");
             }
           }
@@ -1568,7 +1576,4 @@ class _RegisterEditAssetState extends State<RegisterEditAsset> {
       }
     }
   }
-
 }
-
-

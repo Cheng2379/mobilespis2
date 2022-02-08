@@ -246,7 +246,7 @@ class _HorizontalScreenState extends State<HorizontalScreen> {
       getAttributeValue();
       first = false;
     }
-    // portrait();//竖屏
+    portrait();//竖屏
 
     return Scaffold(
         resizeToAvoidBottomInset: false,
